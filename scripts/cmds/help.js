@@ -75,7 +75,8 @@ function createAllCommandsMessage(commands, prefix) {
   let msg = "🌸 List commands 🌸\n\n";
 
   for (const command of commands) {
-    msg += `. ${prefix}${command.name} 🌸\n`;
+    // استخدام الحروف الغليظة (toFont) لتخشين اسم الأمر وضمان ثبات الوردة على اليسار
+    msg += `• ${prefix}${toFont(command.name)} 🌸\n`;
   }
 
   msg += `\n✨ Total Commands: ${commands.length} ✨`;
@@ -143,10 +144,10 @@ module.exports = {
       "help6", "help7", "help8", "help9", "help10",
       "help11", "help12", "help13", "help14", "help15"
     ],
-    version: "8.3",
+    version: "8.4",
     author: "𝐒𝐈𝐅𝐀𝐓",
     shortDescription: "Show all available commands",
-    longDescription: "Displays all commands in a single list with an anime GIF sent separately.",
+    longDescription: "Displays all commands in a single list with bold fonts and left-aligned flowers.",
     category: "system",
     guide: "{pn}help [command name]"
   },
@@ -162,14 +163,12 @@ module.exports = {
       console.error("HELP GIF ERROR:", error);
     }
 
-    // إرسال الـ GIF أولاً بشكل منفصل بدون تكرار
     if (gifPath && fs.existsSync(gifPath)) {
       await message.reply({
         attachment: fs.createReadStream(gifPath)
       });
     }
 
-    // إذا طلب المستخدم تفاصيل أمر معين
     if (query) {
       const lowerQuery = query.toLowerCase();
       const cmd = allCommands.get(lowerQuery) || [...allCommands.values()].find(
@@ -184,7 +183,6 @@ module.exports = {
       return message.reply({ body: detailMsg });
     }
 
-    // عرض جميع الأوامر دفعة واحدة في قائمة List commands
     const commands = getAllCommands();
     const menuMessage = createAllCommandsMessage(commands, prefix);
     return message.reply({ body: menuMessage });
