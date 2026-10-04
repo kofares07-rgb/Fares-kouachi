@@ -72,14 +72,15 @@ function getAllCommands() {
 }
 
 function createAllCommandsMessage(commands, prefix) {
-  let msg = "🌸 List commands 🌸\n\n";
+  // \u200E علامة مخفية تجبر الميسنجر على جعل السطر محاذياً لليسار تماماً
+  let msg = "\u200E🌸 List commands 🌸\n\n";
 
   for (const command of commands) {
-    // استخدام الحروف الغليظة (toFont) لتخشين اسم الأمر وضمان ثبات الوردة على اليسار
-    msg += `• ${prefix}${toFont(command.name)} 🌸\n`;
+    const boldName = toFont(command.name);
+    msg += `\u200E• ${prefix}${boldName} 🌸\n`;
   }
 
-  msg += `\n✨ Total Commands: ${commands.length} ✨`;
+  msg += `\n\u200E✨ Total Commands: ${commands.length} ✨`;
   return msg;
 }
 
@@ -89,20 +90,20 @@ function createCommandDetail(cmd, prefix) {
   const usage = String(guide?.en || guide || `{pn}${name}`).replace(/{pn}/g, prefix).replace(/{name}/g, name);
 
   return (
-    "╭┈─────┈─ ─┈────┈╮\n" +
-    "  🌸 𝗖𝗢𝗠𝗠𝗔𝗡𝗗 𝗜𝗡𝗙𝗢 🌸\n" +
-    "╰┈─────┈─ ─┈────┈╯\n\n" +
-    `🪷 𝐍𝐚𝐦𝐞: ${toFont(name)}\n` +
-    `🪷 𝐂𝐚𝐭𝐞𝐠𝐨𝐫𝐲: ${toFont(category || "General")}\n` +
-    `🪷 𝐀𝐥𝐢𝐚𝐬𝐞𝐬: ${aliases?.length ? aliases.join(", ") : "None"}\n` +
-    `🪷 𝐕𝐞𝐫𝐬𝐢𝐨𝐧: ${version || "1.0"}\n` +
-    `🪷 𝐀𝐮𝐭𝐡𝐨𝐫: ${author || "S1FU"}\n\n` +
-    "┌──────ʚ🍄ɞ──────┐\n" +
-    `📖 𝐃𝐞𝐬𝐜: ${desc}\n\n` +
-    `💡 𝐔𝐬𝐚𝐠𝐞: ${usage}\n` +
-    "└──────ʚ🍄ɞ──────┘\n\n" +
-    "🌸𝐒𝐭𝐚𝐲 𝐇𝐚𝐩𝐩𝐲&𝐁𝐞𝐚𝐮𝐭𝐢𝐟𝐮𝐥🌸\n" +
-    "╰┈───┈──────┈───┈╯"
+    "\u200E╭┈─────┈─ ─┈────┈╮\n" +
+    "\u200E  🌸 𝗖𝗢𝗠𝗠𝗔𝗡𝗗 𝗜𝗡𝗙𝗢 🌸\n" +
+    "\u200E╰┈─────┈─ ─┈────┈╯\n\n" +
+    `\u200E🪷 𝐍𝐚𝐦𝐞: ${toFont(name)}\n` +
+    `\u200E🪷 𝐂𝐚𝐭𝐞𝐠𝐨𝐫𝐲: ${toFont(category || "General")}\n` +
+    `\u200E🪷 𝐀𝐥𝐢𝐚𝐬𝐞𝐬: ${aliases?.length ? aliases.join(", ") : "None"}\n` +
+    `\u200E🪷 𝐕𝐞𝐫𝐬𝐢𝐨𝐧: ${version || "1.0"}\n` +
+    `\u200E🪷 𝐀𝐮𝐭𝐡𝐨𝐫: ${author || "S1FU"}\n\n` +
+    "\u200E┌──────ʚ🍄ɞ──────┐\n" +
+    `\u200E📖 𝐃𝐞𝐬𝐜: ${desc}\n\n` +
+    `\u200E💡 𝐔𝐬𝐚𝐠𝐞: ${usage}\n` +
+    "\u200E└──────ʚ🍄ɞ──────┘\n\n" +
+    "\u200E🌸𝐒𝐭𝐚𝐲 𝐇𝐚𝐩𝐩𝐲&𝐁𝐞𝐚𝐮𝐭𝐢𝐟𝐮𝐥🌸\n" +
+    "\u200E╰┈───┈──────┈───┈╯"
   );
 }
 
@@ -144,10 +145,10 @@ module.exports = {
       "help6", "help7", "help8", "help9", "help10",
       "help11", "help12", "help13", "help14", "help15"
     ],
-    version: "8.4",
+    version: "8.5",
     author: "𝐒𝐈𝐅𝐀𝐓",
     shortDescription: "Show all available commands",
-    longDescription: "Displays all commands in a single list with bold fonts and left-aligned flowers.",
+    longDescription: "Displays all commands strictly left-aligned with forced bold fonts and flowers.",
     category: "system",
     guide: "{pn}help [command name]"
   },
