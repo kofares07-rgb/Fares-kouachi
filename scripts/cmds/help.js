@@ -60,8 +60,6 @@ const gifURLs = [
   "https://i.giphy.com/media/HOmZcACWYNntC/giphy.gif"
 ];
 
-const COMMANDS_PER_PAGE = 10;
-
 function getAllCommands() {
   const commands = [];
   for (const [name, cmd] of global.GoatBot.commands) {
@@ -73,17 +71,14 @@ function getAllCommands() {
   return commands.sort((a, b) => a.name.localeCompare(b.name, "en", { sensitivity: "base" }));
 }
 
-function createPageMessage(commands, page, totalPages, prefix) {
-  const start = (page - 1) * COMMANDS_PER_PAGE;
-  const pageCommands = commands.slice(start, start + COMMANDS_PER_PAGE);
+function createAllCommandsMessage(commands, prefix) {
+  let msg = "🌸 List commands 🌸\n\n";
 
-  let msg = "🌸 𝐬𝐩𝐢𝐭𝐚 𝐦𝐞𝐧𝐮 🌸\n\n";
-
-  for (const command of pageCommands) {
+  for (const command of commands) {
     msg += `. ${prefix}${command.name} 🌸\n`;
   }
 
-  msg += `\n〈 page ${page}/${totalPages} 〉`;
+  msg += `\n✨ Total Commands: ${commands.length} ✨`;
   return msg;
 }
 
@@ -148,22 +143,17 @@ module.exports = {
       "help6", "help7", "help8", "help9", "help10",
       "help11", "help12", "help13", "help14", "help15"
     ],
-    version: "8.2",
+    version: "8.3",
     author: "𝐒𝐈𝐅𝐀𝐓",
     shortDescription: "Show all available commands",
-    longDescription: "Displays commands in clean spita pages with anime GIF sent separately.",
+    longDescription: "Displays all commands in a single list with an anime GIF sent separately.",
     category: "system",
-    guide: "{pn}help [page number | command name]"
+    guide: "{pn}help [command name]"
   },
 
-  onStart: async function ({ message, args, prefix, commandName }) {
+  onStart: async function ({ message, args, prefix }) {
     const allCommands = global.GoatBot.commands;
-    let query = args?.[0] ? String(args[0]).trim() : "";
-    const usedCommand = String(commandName || "").toLowerCase();
-
-    if (/^help\d+$/.test(usedCommand)) {
-      query = usedCommand.replace(/^help/, "");
-    }
+    const query = args?.[0] ? String(args[0]).trim() : "";
 
     let gifPath = null;
     try {
@@ -172,15 +162,15 @@ module.exports = {
       console.error("HELP GIF ERROR:", error);
     }
 
-    // إرسال الـ GIF أولاً بشكل منفصل إن وجد بدون تكرار مزعج
+    // إرسال الـ GIF أولاً بشكل منفصل بدون تكرار
     if (gifPath && fs.existsSync(gifPath)) {
       await message.reply({
         attachment: fs.createReadStream(gifPath)
       });
     }
 
-    // إذا طلب المستخدم أمر معين
-    if (query && !/^\d+$/.test(query)) {
+    // إذا طلب المستخدم تفاصيل أمر معين
+    if (query) {
       const lowerQuery = query.toLowerCase();
       const cmd = allCommands.get(lowerQuery) || [...allCommands.values()].find(
         command => (command.config?.aliases || []).some(alias => String(alias).toLowerCase() === lowerQuery)
@@ -194,15 +184,9 @@ module.exports = {
       return message.reply({ body: detailMsg });
     }
 
-    // عرض قائمة الأوامر في صفحات السبيطة
+    // عرض جميع الأوامر دفعة واحدة في قائمة List commands
     const commands = getAllCommands();
-    const totalPages = Math.max(1, Math.ceil(commands.length / COMMANDS_PER_PAGE));
-    let page = query && /^\d+$/.test(query) ? parseInt(query, 10) : 1;
-
-    if (page < 1) page = 1;
-    if (page > totalPages) page = totalPages;
-
-    const menuMessage = createPageMessage(commands, page, totalPages, prefix);
+    const menuMessage = createAllCommandsMessage(commands, prefix);
     return message.reply({ body: menuMessage });
   }
 };
