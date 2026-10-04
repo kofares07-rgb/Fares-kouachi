@@ -24,7 +24,7 @@ module.exports = {
     config: {
         name: "تفاعل",
         aliases: ["تشغيل", "ايقاف", "تفاعل"],
-        version: "4.2",
+        version: "5.0",
         author: "MahMUD & Fares",
         countDown: 1,
         role: 0,
@@ -51,7 +51,6 @@ module.exports = {
         const config = getConfig();
 
         if (subCommand === "on") {
-            // استخراج أول إيموجي موجود في الرسالة أو افتراضي 🌸
             const emojiMatch = body ? body.match(/[\p{Extended_Pictographic}]/u) : null;
             const selectedEmoji = emojiMatch ? emojiMatch[0] : "🌸";
 
@@ -74,7 +73,7 @@ module.exports = {
         }
     },
 
-    onChat: async function ({ api, event }) {
+    handleEvent: async function ({ api, event }) {
         try {
             const { threadID, messageID, senderID, body } = event;
             if (!threadID || senderID === api.getCurrentUserID()) return;
@@ -82,7 +81,7 @@ module.exports = {
             const config = getConfig();
             const threadConfig = config[threadID];
 
-            // 1. التفاعل التلقائي للمجموعة بالإيموجي المحدد مسبقاً
+            // 1. التفاعل التلقائي للمجموعة بالإيموجي المحدد مسبقاً عند تفعيله
             if (threadConfig && threadConfig.status === true && threadConfig.emoji) {
                 api.setMessageReaction(threadConfig.emoji, messageID, () => {}, true);
             }
