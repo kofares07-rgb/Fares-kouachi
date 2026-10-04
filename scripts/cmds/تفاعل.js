@@ -24,7 +24,7 @@ module.exports = {
     config: {
         name: "تفاعل",
         aliases: ["تشغيل", "ايقاف", "تفاعل"],
-        version: "4.0",
+        version: "4.2",
         author: "MahMUD & Fares",
         countDown: 1,
         role: 0,
@@ -33,27 +33,26 @@ module.exports = {
         },
         category: "box",
         guide: {
-            ar: '   {pn} تشغيل تفاعل <الإيموجي>\n   {pn} ايقاف تفاعل'
+            ar: '   {pn} تفاعل on <الإيموجي>\n   {pn} تفاعل off'
         }
     },
 
     langs: {
         ar: {
-            usageError: "⚠️ | الاستخدام الصحيح:\n• للتفعيل: تشغيل تفاعل 🌸\n• للإيقاف: ايقاف تفاعل",
+            usageError: "⚠️ | الاستخدام الصحيح:\n• للتفعيل: تفاعل on 💋\n• للإيقاف: تفاعل off",
             enabled: "✅ | تم تفعيل التفاعل التلقائي للجميع بنجاح بالإيموجي: %1",
             disabled: "🛑 | تم إيقاف التفاعل التلقائي بنجاح."
         }
     },
 
     onStart: async function ({ api, event, args, getLang }) {
-        const { threadID, messageID } = event;
-        const fullText = args.join(" ").toLowerCase();
+        const { threadID, messageID, body } = event;
+        const subCommand = (args[0] || "").toLowerCase();
         const config = getConfig();
 
-        // فحص مرن جداً لتشغيل التفاعل بغض النظر عن ترتيب الكلمات
-        if (fullText.includes("تشغيل") || fullText.includes("تفعيل")) {
-            // استخراج أول إيموجي يلاقيه المستخدم في رسالته، أو افتراضي 🌸
-            const emojiMatch = event.body.match(/[\p{Extended_Pictographic}]/u);
+        if (subCommand === "on") {
+            // استخراج أول إيموجي موجود في الرسالة أو افتراضي 🌸
+            const emojiMatch = body ? body.match(/[\p{Extended_Pictographic}]/u) : null;
             const selectedEmoji = emojiMatch ? emojiMatch[0] : "🌸";
 
             config[threadID] = {
@@ -63,8 +62,7 @@ module.exports = {
             saveConfig(config);
             return api.sendMessage(getLang("enabled").replace("%1", selectedEmoji), threadID, messageID);
         } 
-        // فحص إيقاف التفاعل
-        else if (fullText.includes("ايقاف") || fullText.includes("إيقاف")) {
+        else if (subCommand === "off") {
             if (config[threadID]) {
                 config[threadID].status = false;
                 saveConfig(config);
@@ -78,14 +76,24 @@ module.exports = {
 
     onChat: async function ({ api, event }) {
         try {
-            const { threadID, messageID, senderID } = event;
+            const { threadID, messageID, senderID, body } = event;
             if (!threadID || senderID === api.getCurrentUserID()) return;
 
             const config = getConfig();
             const threadConfig = config[threadID];
 
+            // 1. التفاعل التلقائي للمجموعة بالإيموجي المحدد مسبقاً
             if (threadConfig && threadConfig.status === true && threadConfig.emoji) {
                 api.setMessageReaction(threadConfig.emoji, messageID, () => {}, true);
+            }
+
+            // 2. الرد بنفس الإيموجي إذا أرسل المستخدم إيموجي منفرداً
+            if (body) {
+                const trimmedBody = body.trim();
+                const emojiRegex = /^[\p{Extended_Pictographic}]$/u;
+                if (emojiRegex.test(trimmedBody)) {
+                    api.setMessageReaction(trimmedBody, messageID, () => {}, true);
+                }
             }
         } catch (e) {}
     }
