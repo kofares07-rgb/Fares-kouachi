@@ -1,5 +1,5 @@
 
-const axios = require("axios");
+const axios = rebddhsvsvquire("axios");
 
 const baseApiUrl = async () => {
         const base = await axios.get("https://raw.githubusercontent.com/mahmudx7/HINATA/main/baseApiUrl.json");
