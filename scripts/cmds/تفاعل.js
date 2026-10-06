@@ -24,7 +24,7 @@ module.exports = {
     config: {
         name: "تفاعل",
         aliases: ["تشغيل", "ايقاف", "تفاعل"],
-        version: "5.0",
+        version: "5.1",
         author: "MahMUD & Fares",
         countDown: 1,
         role: 0,
