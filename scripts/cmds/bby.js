@@ -1,4 +1,4 @@
-Const database = {
+const database = {
   "تمنيك": [
     "روح تقود علاش تسب 🙂",
     "ايه نتمنيك 🙂"
