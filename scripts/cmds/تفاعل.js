@@ -23,13 +23,13 @@ const saveConfig = (data) => {
 module.exports = {
     config: {
         name: "تفاعل",
-        aliases: ["تشغيل", "ايقاف", "تفاعل"],
-        version: "5.1",
-        author: "MahMUD & Fares",
+        aliases: ["تشغيل", "ايقاف"],
+        version: "6.0",
+        author: "Fares Kouachi",
         countDown: 1,
         role: 0,
         description: {
-            ar: "تشغيل أو إيقاف التفاعل التلقائي السريع لجميع أعضاء المجموعة ⚡"
+            ar: "تشغيل أو إيقاف التفاعل التلقائي السريع لجميع أعضاء المجموعة بإيموجي مخصص ⚡"
         },
         category: "box",
         guide: {
@@ -37,39 +37,35 @@ module.exports = {
         }
     },
 
-    langs: {
-        ar: {
-            usageError: "⚠️ | الاستخدام الصحيح:\n• للتفعيل: تفاعل on 💋\n• للإيقاف: تفاعل off",
-            enabled: "✅ | تم تفعيل التفاعل التلقائي للجميع بنجاح بالإيموجي: %1",
-            disabled: "🛑 | تم إيقاف التفاعل التلقائي بنجاح."
-        }
-    },
-
-    onStart: async function ({ api, event, args, getLang }) {
+    onStart: async function ({ api, event, args }) {
         const { threadID, messageID, body } = event;
         const subCommand = (args[0] || "").toLowerCase();
         const config = getConfig();
 
         if (subCommand === "on") {
-            const emojiMatch = body ? body.match(/[\p{Extended_Pictographic}]/u) : null;
-            const selectedEmoji = emojiMatch ? emojiMatch[0] : "🌸";
+            // استخراج الإيموجي بدقة عالية من الكلمة الثانية أو من النص كاملاً
+            let emoji = args[1];
+            if (!emoji) {
+                const match = body ? body.match(/[\p{Extended_Pictographic}]/u) : null;
+                emoji = match ? match[0] : "🙂";
+            }
 
             config[threadID] = {
                 status: true,
-                emoji: selectedEmoji
+                emoji: emoji
             };
             saveConfig(config);
-            return api.sendMessage(getLang("enabled").replace("%1", selectedEmoji), threadID, messageID);
+            return api.sendMessage(`✅ | تم تفعيل التفاعل التلقائي بنجاح بالإيموجي: ${emoji}`, threadID, messageID);
         } 
         else if (subCommand === "off") {
             if (config[threadID]) {
                 config[threadID].status = false;
                 saveConfig(config);
             }
-            return api.sendMessage(getLang("disabled"), threadID, messageID);
+            return api.sendMessage(`🛑 | تم إيقاف التفاعل التلقائي بنجاح.`, threadID, messageID);
         } 
         else {
-            return api.sendMessage(getLang("usageError"), threadID, messageID);
+            return api.sendMessage(`⚠️ | الاستخدام الصحيح:\n• للتفعيل: تفاعل on 🙂\n• للإيقاف: تفاعل off`, threadID, messageID);
         }
     },
 
@@ -81,17 +77,17 @@ module.exports = {
             const config = getConfig();
             const threadConfig = config[threadID];
 
-            // 1. التفاعل التلقائي للمجموعة بالإيموجي المحدد مسبقاً عند تفعيله
+            // 1. التفاعل التلقائي لرسائل المجموعة بالإيموجي المحفوظ
             if (threadConfig && threadConfig.status === true && threadConfig.emoji) {
                 api.setMessageReaction(threadConfig.emoji, messageID, () => {}, true);
             }
 
-            // 2. الرد بنفس الإيموجي إذا أرسل المستخدم إيموجي منفرداً
+            // 2. الرد الفوري بنفس الإيموجي إذا أرسل أحدهم إيموجي منفرداً
             if (body) {
-                const trimmedBody = body.trim();
-                const emojiRegex = /^[\p{Extended_Pictographic}]$/u;
-                if (emojiRegex.test(trimmedBody)) {
-                    api.setMessageReaction(trimmedBody, messageID, () => {}, true);
+                const trimmed = body.trim();
+                const singleEmojiRegex = /^[\p{Extended_Pictographic}]$/u;
+                if (singleEmojiRegex.test(trimmed)) {
+                    api.setMessageReaction(trimmed, messageID, () => {}, true);
                 }
             }
         } catch (e) {}
