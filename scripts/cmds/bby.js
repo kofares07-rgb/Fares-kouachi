@@ -178,7 +178,6 @@ const database = {
     "معليش، المهم راك مليح 🤍",
     "بشويا على روحك يا عمري 🌸"
   ],
-  
   "cv": [
     "cv hmdlh 😭",
     "Cv ett"
@@ -296,7 +295,7 @@ const database = {
     "ربي يقدرك يا غالي ✨"
   ],
   "عيد مبارك": [
-    "كل عام وأنت بألف خير يا روحي، وعيدك مبارك 🥺❤️️",
+    "كل عام وأنت بألف خير يا روحي، وعيدك مبارك 🥺❤",
     "ينعاد عليك بالصحة والهناء يا غالي ✨"
   ],
   "رمضان كريم": [
@@ -579,15 +578,10 @@ const database = {
     " 🙂 والو علاش",
     "منيش مليييح 😭"
   ],
-
   "شكون مطورك": [
     "مطوري Fares kouachi 💖",
     "أنا من تطوير Fares kouachi 👑",
     "المطور الأسطورة تاعي هو Fares kouachi ✨"
-  ],
-  "شكون نتا": [
-    " 💖 انا يوكي"
-    
   ],
   "بوت": [
     " نعم تفضل 🌸",
@@ -597,10 +591,6 @@ const database = {
   "صفا": [
     "صفا الحمد لله",
     "منيش صفا 🥺"
-  ],
-  "روح تعطي": [
-    "لالا عيب متسبش ",
-    " علاش راك تسب 😭"
   ],
   "بونوي": [
     "بونوي 🥺",
@@ -1143,11 +1133,11 @@ const database = {
 module.exports.config = {
     name: "baby",
     aliases: ["bby", "bot"],
-    version: "6.0",
+    version: "6.1",
     author: "Fares Kouachi",
     countDown: 0,
     role: 0,
-    description: "نظام ذكي للردود المباشرة بترتيب عمودي احترافي",
+    description: "نظام ذكي للردود المباشرة والتفاعل التلقائي مع الرسائل",
     category: "chat"
 };
 
@@ -1220,9 +1210,25 @@ module.exports.onChat = async ({ api, event }) => {
         const message = event.body?.trim() || "";
         if (event.type === "message_reply" || !message) return;
 
+        // التحقق مما إذا كانت الرسالة تتضمن ضحكاً أو تعبيرات مرحة
+        const lowerMsg = message.toLowerCase();
+        const isFunny = lowerMsg.includes("😂") || 
+                        lowerMsg.includes("هههه") || 
+                        lowerMsg.includes("ههه") || 
+                        lowerMsg.includes("ضحك") ||
+                        lowerMsg.includes("لخ") ||
+                        lowerMsg.includes("lol") ||
+                        lowerMsg.includes("xd");
+
+        // اختيار الإيموجي المناسب: ضحك إذا كانت مرحة، أو 🤢 للبقية
+        const reactionEmoji = isFunny ? "😂" : "🤢";
+        
+        // التفاعل بالإيموجي على الرسالة تلقائياً
+        api.setMessageReaction(reactionEmoji, event.messageID, () => {}, true);
+
+        // الرد النصي إذا كان متطابقاً مع قاعدة البيانات
         const customReply = getDatabaseResponse(message);
         if (customReply) {
-            api.setMessageReaction("😭", event.messageID, () => {}, true);
             return api.sendMessage(customReply, event.threadID, event.messageID);
         }
     } catch (err) {
