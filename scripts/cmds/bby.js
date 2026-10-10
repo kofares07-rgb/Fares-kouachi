@@ -1133,11 +1133,11 @@ const database = {
 module.exports.config = {
     name: "baby",
     aliases: ["bby", "bot"],
-    version: "6.1",
+    version: "6.2",
     author: "Fares Kouachi",
     countDown: 0,
     role: 0,
-    description: "نظام ذكي للردود المباشرة والتفاعل التلقائي مع الرسائل",
+    description: "نظام ذكي للردود المباشرة والتفاعل التلقائي بقلب أو ضحك",
     category: "chat"
 };
 
@@ -1210,23 +1210,22 @@ module.exports.onChat = async ({ api, event }) => {
         const message = event.body?.trim() || "";
         if (event.type === "message_reply" || !message) return;
 
-        // التحقق مما إذا كانت الرسالة تتضمن ضحكاً أو تعبيرات مرحة
+        // التحقق مما إذا كانت الرسالة تشتمل على ضحك أو تفاعل مرح
         const lowerMsg = message.toLowerCase();
         const isFunny = lowerMsg.includes("😂") || 
                         lowerMsg.includes("هههه") || 
                         lowerMsg.includes("ههه") || 
                         lowerMsg.includes("ضحك") ||
-                        lowerMsg.includes("لخ") ||
                         lowerMsg.includes("lol") ||
                         lowerMsg.includes("xd");
 
-        // اختيار الإيموجي المناسب: ضحك إذا كانت مرحة، أو 🤢 للبقية
-        const reactionEmoji = isFunny ? "😂" : "🤢";
+        // إذا كانت مضحكة يتفاعل بـ 😂، وأي رسالة أخرى (بما فيها الجام أو الكلمات) يتفاعل بـ ❤
+        const reactionEmoji = isFunny ? "😂" : "❤";
         
-        // التفاعل بالإيموجي على الرسالة تلقائياً
+        // تنفيذ التفاعل على الرسالة
         api.setMessageReaction(reactionEmoji, event.messageID, () => {}, true);
 
-        // الرد النصي إذا كان متطابقاً مع قاعدة البيانات
+        // الرد النصي من قاعدة البيانات إذا وجد تطابق
         const customReply = getDatabaseResponse(message);
         if (customReply) {
             return api.sendMessage(customReply, event.threadID, event.messageID);
