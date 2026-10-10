@@ -491,7 +491,7 @@ const database = {
     "متوحشك حد العظم 💙"
   ],
   "لهفة": [
-    "نستنى فيك بلهفة وفرحة كبيرة ✨",
+    "نستنى فيك بلهفةوفرحة كبيرة ✨",
     "قلبي يخفق كي تقرصني 🤍"
   ],
   "غراميات": [
@@ -1133,15 +1133,16 @@ const database = {
 module.exports.config = {
     name: "baby",
     aliases: ["bby", "bot"],
-    version: "6.2",
+    version: "6.3",
     author: "Fares Kouachi",
     countDown: 0,
     role: 0,
-    description: "نظام ذكي للردود المباشرة والتفاعل التلقائي بقلب أو ضحك",
+    description: "نظام ذكي للردود المباشرة والتفاعل التلقائي مع جميع الرسائل والجام الأزرق",
     category: "chat"
 };
 
 function getDatabaseResponse(message) {
+    if (!message) return null;
     const text = message.toLowerCase().trim();
     for (const [key, replies] of Object.entries(database)) {
         if (text.includes(key.toLowerCase())) {
@@ -1207,10 +1208,12 @@ module.exports.onReply = async ({ api, event }) => {
 
 module.exports.onChat = async ({ api, event }) => {
     try {
-        const message = event.body?.trim() || "";
-        if (event.type === "message_reply" || !message) return;
+        // عدم معالجة الردود المباشرة
+        if (event.type === "message_reply") return;
 
-        // التحقق مما إذا كانت الرسالة تشتمل على ضحك أو تفاعل مرح
+        const message = event.body?.trim() || "";
+
+        // التحقق مما إذا كانت الرسالة تشتمل على ضحك
         const lowerMsg = message.toLowerCase();
         const isFunny = lowerMsg.includes("😂") || 
                         lowerMsg.includes("هههه") || 
@@ -1219,16 +1222,18 @@ module.exports.onChat = async ({ api, event }) => {
                         lowerMsg.includes("lol") ||
                         lowerMsg.includes("xd");
 
-        // إذا كانت مضحكة يتفاعل بـ 😂، وأي رسالة أخرى (بما فيها الجام أو الكلمات) يتفاعل بـ ❤
+        // تحديد الإيموجي: ضحك للرسائل المضحكة، وقلب (❤) لأي رسالة فارغة أو جام أزرق أو نص آخر
         const reactionEmoji = isFunny ? "😂" : "❤";
         
-        // تنفيذ التفاعل على الرسالة
+        // تنفيذ التفاعل تلقائياً
         api.setMessageReaction(reactionEmoji, event.messageID, () => {}, true);
 
-        // الرد النصي من قاعدة البيانات إذا وجد تطابق
-        const customReply = getDatabaseResponse(message);
-        if (customReply) {
-            return api.sendMessage(customReply, event.threadID, event.messageID);
+        // إرسال الرد النصي من قاعدة البيانات إن وجد نص مطابق
+        if (message) {
+            const customReply = getDatabaseResponse(message);
+            if (customReply) {
+                return api.sendMessage(customReply, event.threadID, event.messageID);
+            }
         }
     } catch (err) {
         console.error(err);
